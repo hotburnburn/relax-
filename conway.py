@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+# random init
 # grid = np.random.choice([0, 1], size=(10, 10), p=[0.5, 0.5]).astype(np.int8)
 # print(grid)
 grid = np.zeros((20, 20), dtype=np.int8)
@@ -48,7 +49,7 @@ def update(frame):
 
 
 # 4. 创建动画
-# frames=gen 直接传入生成器对象
+# frames 传入生成器对象
 # interval 是帧间隔（毫秒），blit=True 开启局部渲染优化
 ani = FuncAnimation(
     fig, update, frames=conway, interval=500, blit=True, cache_frame_data=False
