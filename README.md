@@ -1,1 +1,1 @@
-funny code for relaxation
+为了放松的快乐coding！
