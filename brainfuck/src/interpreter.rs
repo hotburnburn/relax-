@@ -1,3 +1,4 @@
+use crate::instruction::Instruction;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -10,9 +11,7 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn new(code: Vec<u8>, bmap: HashMap<usize, usize>) -> Self {
-        let code = code.into_iter().map(Instruction::parse).collect();
-
+    pub fn new(code: Vec<Instruction>, bmap: HashMap<usize, usize>) -> Self {
         Self {
             code,
             ip: 0,
@@ -27,19 +26,21 @@ impl Interpreter {
         // println!("at {}, ins: {:?}", self.ip, cur_ins);
 
         match cur_ins {
-            Instruction::Add => self.mem[self.dp] = self.mem[self.dp].wrapping_add(1),
-            Instruction::Sub => self.mem[self.dp] = self.mem[self.dp].wrapping_sub(1),
+            Instruction::Add(n) => self.mem[self.dp] = self.mem[self.dp].wrapping_add(*n),
+            Instruction::Sub(n) => self.mem[self.dp] = self.mem[self.dp].wrapping_sub(*n),
             Instruction::In => (),
             Instruction::Out => print!("{}", self.mem[self.dp] as char),
-            Instruction::Left => {
+            Instruction::Left(n) => {
                 if self.dp == 0 {
+                    // todo maybe
                     return None;
                 }
-                self.dp -= 1;
+                self.dp -= *n;
             }
-            Instruction::Right => {
-                self.dp += 1;
+            Instruction::Right(n) => {
+                self.dp += *n;
                 if self.dp >= self.mem.len() {
+                    // todo maybe
                     self.mem.push(0);
                 }
             }
@@ -58,33 +59,5 @@ impl Interpreter {
         self.ip += 1;
 
         Some(())
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-enum Instruction {
-    Add,
-    Sub,
-    Left,
-    Right,
-    Go,
-    Break,
-    In,
-    Out,
-}
-
-impl Instruction {
-    fn parse(x: u8) -> Self {
-        match x {
-            b'+' => Self::Add,
-            b',' => Self::In,
-            b'-' => Self::Sub,
-            b'.' => Self::Out,
-            b'<' => Self::Left,
-            b'>' => Self::Right,
-            b'[' => Self::Break,
-            b']' => Self::Go,
-            _ => unreachable!(),
-        }
     }
 }

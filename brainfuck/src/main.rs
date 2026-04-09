@@ -1,13 +1,14 @@
+mod instruction;
 mod interpreter;
-mod preprocess;
+mod scan;
 
 fn main() {
     let path = "hello.txt";
-    let (code, bmap) = preprocess::preprocess(path).unwrap();
+    let (code, bmap) = scan::scan(path).unwrap();
 
     let mut vm = interpreter::Interpreter::new(code, bmap);
     // println!("{vm:?}");
 
-    while let Some(_) = vm.exec() {}
+    while vm.exec().is_some() {}
     println!();
 }
