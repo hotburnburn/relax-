@@ -1,0 +1,261 @@
+:root {
+  --card-width: 90px;
+  --card-height: 135px;
+  --offset-face-up: 28px;
+  --offset-face-down: 18px;
+  
+  --card-bg-light: #fdfdfd;
+  --card-bg-dark: #1e1e24;
+  --card-black: #1f2937;
+  --card-red: #ef4444;
+  
+  --card-back-bg: radial-gradient(circle, #065f46 0%, #064e3b 70%, #022c22 100%);
+  --card-back-gold: #fbbf24;
+  
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-card-selected: 0 0 0 3px #fbbf24, 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-card-hinted: 0 0 0 3px #3b82f6, 0 8px 16px rgba(59, 130, 246, 0.4);
+}
+
+/* Base Card Style */
+.card-item {
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  user-select: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease;
+  transform-style: preserve-3d;
+}
+
+/* Hover and active states */
+.card-item.face-up:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-item.selected {
+  box-shadow: var(--shadow-card-selected) !important;
+  transform: translateY(-8px) scale(1.02);
+  z-index: 100 !important;
+}
+
+.card-item.hinted {
+  box-shadow: var(--shadow-card-hinted) !important;
+  animation: hint-pulse 1.5s infinite alternate;
+}
+
+@keyframes hint-pulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 2px #3b82f6, var(--shadow-card);
+  }
+  100% {
+    transform: translateY(-6px);
+    box-shadow: 0 0 0 4px #60a5fa, var(--shadow-card-hover);
+  }
+}
+
+.card-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+/* Card Faces */
+.card-face, .card-back {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Face Up Card Styles */
+.card-face {
+  background: var(--card-bg-light);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  color: var(--card-black);
+}
+
+.card-item.red-suit .card-face {
+  color: var(--card-red);
+}
+
+/* Card Corners */
+.card-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.card-corner.top-left {
+  align-self: flex-start;
+}
+
+.card-corner.bottom-right {
+  align-self: flex-end;
+  transform: rotate(180deg);
+}
+
+.card-rank {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.suit-mini {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+
+/* Card Center */
+.card-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.suit-main {
+  width: 38px;
+  height: 38px;
+  opacity: 0.9;
+}
+
+/* Royal decoration for J, Q, K */
+.card-royal-border {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Face Down Card Styles */
+.card-back {
+  background: var(--card-back-bg);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+}
+
+.card-back-pattern {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-back-inner-frame {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-back-mesh {
+  width: 100%;
+  height: 100%;
+}
+
+/* Stacking Container */
+.nested-card-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto; /* Allow interaction with nested cards */
+}
+
+/* Responsive adjustment */
+@media (max-width: 1024px) {
+  :root {
+    --card-width: 72px;
+    --card-height: 108px;
+    --offset-face-up: 22px;
+    --offset-face-down: 14px;
+  }
+  .card-rank {
+    font-size: 1.05rem;
+  }
+  .suit-mini {
+    width: 11px;
+    height: 11px;
+  }
+  .suit-main {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --card-width: 60px;
+    --card-height: 90px;
+    --offset-face-up: 18px;
+    --offset-face-down: 10px;
+  }
+  .card-rank {
+    font-size: 0.9rem;
+  }
+  .suit-mini {
+    width: 9px;
+    height: 9px;
+  }
+  .suit-main {
+    width: 22px;
+    height: 22px;
+  }
+  .card-face {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-width: 46px;
+    --card-height: 69px;
+    --offset-face-up: 14px;
+    --offset-face-down: 8px;
+  }
+  .card-rank {
+    font-size: 0.75rem;
+  }
+  .suit-mini {
+    width: 7px;
+    height: 7px;
+  }
+  .suit-main {
+    width: 16px;
+    height: 16px;
+  }
+  .card-face {
+    padding: 2px;
+  }
+}

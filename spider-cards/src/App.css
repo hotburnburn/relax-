@@ -1,0 +1,75 @@
+/* App layout and container styling */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at center, #0f5132 0%, #0a3d25 60%, #062818 100%);
+  background-attachment: fixed;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #fff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+/* Card Board grid container */
+.game-board {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tableau-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+/* Footer elements: stock + completed runs */
+.game-footer-deck {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 10px auto;
+  flex-wrap: wrap;
+}
+
+/* Responsive constraints */
+@media (max-width: 1024px) {
+  .app-container {
+    padding: 16px;
+    gap: 12px;
+  }
+  .tableau-grid {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+    gap: 8px;
+  }
+  .tableau-grid {
+    gap: 2px;
+  }
+  .game-footer-deck {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 6px;
+  }
+}

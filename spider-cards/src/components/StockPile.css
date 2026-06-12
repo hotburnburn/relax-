@@ -1,0 +1,141 @@
+.stock-pile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 140px;
+  box-sizing: border-box;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  line-height: 1.2;
+}
+
+.stock-title {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.stock-count {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+.stock-cards-wrapper {
+  width: calc(var(--card-width) + 36px);
+  height: var(--card-height);
+  position: relative;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+/* Hover effect on stack */
+.stock-cards-wrapper:not(.empty):not(.prevent-deal):hover .stock-card-back {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stock-cards-wrapper:not(.empty):not(.prevent-deal):hover {
+  transform: translateY(-2px);
+}
+
+.stock-cards-wrapper:active:not(.empty):not(.prevent-deal) {
+  transform: translateY(1px);
+}
+
+.stock-card-back {
+  width: var(--card-width);
+  height: var(--card-height);
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+  background: var(--card-back-bg);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  padding: 4px;
+  transition: all 0.2s ease;
+}
+
+.stock-card-pattern {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.stock-card-frame {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(251, 191, 36, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-card-mesh {
+  width: 100%;
+  height: 100%;
+}
+
+/* Warning overlay when empty columns exist */
+.stock-cards-wrapper.prevent-deal {
+  cursor: not-allowed;
+}
+
+.stock-cards-wrapper.prevent-deal .stock-card-back {
+  filter: grayscale(0.5) opacity(0.8);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.stock-warning {
+  color: #f87171;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  animation: shake 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes shake {
+  0% { transform: translateX(-1px); }
+  100% { transform: translateX(1px); }
+}
+
+/* Empty stock pile styling */
+.empty-stock-slot {
+  width: var(--card-width);
+  height: var(--card-height);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.empty-stock-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 1024px) {
+  .stock-pile-container {
+    min-width: 110px;
+    padding: 8px;
+  }
+  .stock-cards-wrapper {
+    width: calc(var(--card-width) + 28px);
+  }
+}
