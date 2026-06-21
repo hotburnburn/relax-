@@ -23,11 +23,14 @@ import { StockPile } from './components/StockPile';
 import { Foundations } from './components/Foundations';
 import { RulesModal } from './components/RulesModal';
 import { VictoryModal } from './components/VictoryModal';
+import { useLanguage } from './i18n';
 import './App.css';
 
 const LOCAL_STORAGE_KEY = 'spider_solitaire_save';
 
 export default function App() {
+  const { lang, setLang, t } = useLanguage();
+
   // Game state
   const [gameState, setGameState] = useState<GameState>({
     difficulty: 1,
@@ -159,7 +162,7 @@ export default function App() {
   // Start a new game
   const startNewGame = (diff: Difficulty, showConfirm = true) => {
     if (showConfirm && gameState.movesCount > 0 && !gameState.victory) {
-      const confirm = window.confirm('Are you sure you want to start a new game? Your current progress will be lost.');
+      const confirm = window.confirm(t.app.confirmRestart);
       if (!confirm) return;
     }
 
@@ -197,7 +200,7 @@ export default function App() {
     if (gameState.stock.length === 0) return;
     
     if (hasEmptyColumns) {
-      alert('You cannot deal cards when there are empty columns on the board. Fill them first!');
+      alert(t.app.alertEmptyColumns);
       return;
     }
 
@@ -472,7 +475,7 @@ export default function App() {
   const handleHint = () => {
     const hint = getHint(gameState.tableau);
     if (!hint) {
-      alert('No valid moves available. Deal from stock!');
+      alert(t.app.alertNoMoves);
       return;
     }
 
@@ -510,6 +513,7 @@ export default function App() {
         isMuted={isMuted}
         canUndo={history.length > 0}
         canRedo={redoHistory.length > 0}
+        lang={lang}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onRestart={handleRestart}
@@ -517,6 +521,7 @@ export default function App() {
         onToggleMute={handleToggleMute}
         onOpenRules={() => setIsRulesOpen(true)}
         onChangeDifficulty={handleChangeDifficulty}
+        onToggleLanguage={() => setLang(lang === 'zh' ? 'en' : 'zh')}
       />
 
       {/* Main Playing Tableau Board */}

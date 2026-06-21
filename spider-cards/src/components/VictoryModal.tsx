@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Trophy, RefreshCw, Clock, Hash, Star } from 'lucide-react';
 import type { Difficulty } from '../types/game';
+import { useLanguage } from '../i18n';
 import './VictoryModal.css';
 
 interface VictoryModalProps {
@@ -21,6 +22,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   difficulty,
   onRestart
 }) => {
+  const { t } = useLanguage();
+
   useEffect(() => {
     if (isOpen) {
       // Fire celebratory confetti!
@@ -66,9 +69,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
   const getDifficultyLabel = (diff: Difficulty): string => {
     switch (diff) {
-      case 1: return 'Easy (1 Suit)';
-      case 2: return 'Medium (2 Suits)';
-      case 4: return 'Hard (4 Suits)';
+      case 1: return t.victory.difficultyEasy;
+      case 2: return t.victory.difficultyMedium;
+      case 4: return t.victory.difficultyHard;
       default: return '';
     }
   };
@@ -81,38 +84,38 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           <Trophy className="victory-trophy-icon" />
         </div>
         
-        <h1 className="victory-title">Victory!</h1>
-        <p className="victory-subtitle">You have successfully cleared all 8 runs!</p>
+        <h1 className="victory-title">{t.victory.title}</h1>
+        <p className="victory-subtitle">{t.victory.subtitle}</p>
         
         <div className="victory-stats-grid">
           <div className="victory-stat-card">
             <Star className="victory-stat-icon difficulty" />
-            <span className="victory-stat-label">Difficulty</span>
+            <span className="victory-stat-label">{t.victory.difficultyLabel}</span>
             <span className="victory-stat-value">{getDifficultyLabel(difficulty)}</span>
           </div>
           
           <div className="victory-stat-card">
             <span className="victory-stat-icon score-icon">🏆</span>
-            <span className="victory-stat-label">Final Score</span>
+            <span className="victory-stat-label">{t.victory.finalScoreLabel}</span>
             <span className="victory-stat-value highlight">{score}</span>
           </div>
 
           <div className="victory-stat-card">
             <Hash className="victory-stat-icon moves" />
-            <span className="victory-stat-label">Total Moves</span>
+            <span className="victory-stat-label">{t.victory.totalMovesLabel}</span>
             <span className="victory-stat-value">{moves}</span>
           </div>
 
           <div className="victory-stat-card">
             <Clock className="victory-stat-icon time" />
-            <span className="victory-stat-label">Time Taken</span>
+            <span className="victory-stat-label">{t.victory.timeTakenLabel}</span>
             <span className="victory-stat-value">{formatTime(time)}</span>
           </div>
         </div>
 
         <button className="victory-restart-btn" onClick={onRestart}>
           <RefreshCw size={20} />
-          Play Another Round
+          {t.victory.playAgainButton}
         </button>
       </div>
     </div>

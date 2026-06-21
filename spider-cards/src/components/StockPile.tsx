@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../i18n';
 import './StockPile.css';
 
 interface StockPileProps {
@@ -12,6 +13,8 @@ export const StockPile: React.FC<StockPileProps> = ({
   onClick,
   hasEmptyColumns
 }) => {
+  const { t } = useLanguage();
+
   const handleClick = () => {
     if (remainingDeals > 0) {
       onClick();
@@ -19,16 +22,16 @@ export const StockPile: React.FC<StockPileProps> = ({
   };
 
   const getTooltipText = (): string => {
-    if (remainingDeals === 0) return 'No cards left in stock';
-    if (hasEmptyColumns) return 'Fill all empty columns before dealing';
-    return `Click to deal 10 cards (${remainingDeals} remaining)`;
+    if (remainingDeals === 0) return t.stockPile.noCardsTooltip;
+    if (hasEmptyColumns) return t.stockPile.fillColumnsTooltip;
+    return t.stockPile.dealTooltip(remainingDeals);
   };
 
   return (
     <div className="stock-pile-container" title={getTooltipText()}>
       <div className="stock-info">
-        <span className="stock-title">Stock</span>
-        <span className="stock-count">({remainingDeals} deals)</span>
+        <span className="stock-title">{t.stockPile.title}</span>
+        <span className="stock-count">{t.stockPile.dealsCount(remainingDeals)}</span>
       </div>
       
       <div 
@@ -71,7 +74,7 @@ export const StockPile: React.FC<StockPileProps> = ({
       </div>
       
       {hasEmptyColumns && remainingDeals > 0 && (
-        <span className="stock-warning">Empty columns exist!</span>
+        <span className="stock-warning">{t.stockPile.emptyColumnsWarning}</span>
       )}
     </div>
   );

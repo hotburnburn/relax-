@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Suit } from '../types/game';
 import { SuitIcon } from './CardView';
+import { useLanguage } from '../i18n';
 import './Foundations.css';
 
 interface FoundationsProps {
@@ -8,11 +9,13 @@ interface FoundationsProps {
 }
 
 export const Foundations: React.FC<FoundationsProps> = ({ completedRuns }) => {
+  const { t } = useLanguage();
+
   // Always display 8 slots
   return (
     <div className="foundations-container">
       <div className="foundations-info">
-        <span className="foundations-title">Completed Runs</span>
+        <span className="foundations-title">{t.foundations.title}</span>
         <span className="foundations-count">({completedRuns.length} / 8)</span>
       </div>
       
