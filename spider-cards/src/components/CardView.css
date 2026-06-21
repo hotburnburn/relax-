@@ -259,3 +259,27 @@
     padding: 2px;
   }
 }
+
+/* Peeked Card Styles */
+.card-item.peeked {
+  box-shadow: 0 0 0 3px #a855f7, 0 8px 16px rgba(168, 85, 247, 0.4) !important;
+  animation: peek-pulse 2s infinite ease-in-out;
+  z-index: 10 !important;
+}
+
+.card-face.peeked-face {
+  background: linear-gradient(135deg, rgba(253, 253, 253, 0.95), rgba(243, 232, 255, 0.95)) !important;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+@keyframes peek-pulse {
+  0% {
+    box-shadow: 0 0 0 3px #a855f7, 0 8px 16px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 5px #c084fc, 0 12px 24px rgba(168, 85, 247, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 3px #a855f7, 0 8px 16px rgba(168, 85, 247, 0.4);
+  }
+}

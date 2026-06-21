@@ -6,21 +6,20 @@ const generateCardId = (suit: Suit, rank: number, index: number): string => {
 };
 
 // Create a double deck (104 cards) based on difficulty
-export const createDeck = (difficulty: Difficulty): Card[] => {
+export const createDeck = (difficulty: Difficulty, customSuits?: Suit[]): Card[] => {
   const deck: Card[] = [];
   let suits: Suit[] = [];
 
   if (difficulty === 1) {
-    // 1 Suit: All Spades (104 Spades)
-    suits = ['spades', 'spades', 'spades', 'spades', 'spades', 'spades', 'spades', 'spades'];
+    // 1 Suit: All of the chosen suit, default to spades
+    const chosenSuit = (customSuits && customSuits.length === 1) ? customSuits[0] : 'spades';
+    suits = Array(8).fill(chosenSuit);
   } else if (difficulty === 2) {
-    // 2 Suits: Spades and Hearts (52 Spades, 52 Hearts)
-    suits = [
-      'spades', 'spades', 'spades', 'spades',
-      'hearts', 'hearts', 'hearts', 'hearts'
-    ];
+    // 2 Suits: 4 of each chosen suit, default to spades + hearts
+    const chosenSuits = (customSuits && customSuits.length === 2) ? customSuits : ['spades', 'hearts'];
+    suits = [...Array(4).fill(chosenSuits[0]), ...Array(4).fill(chosenSuits[1])];
   } else {
-    // 4 Suits: Spades, Hearts, Diamonds, Clubs (26 of each)
+    // 4 Suits: 2 of each
     suits = [
       'spades', 'spades',
       'hearts', 'hearts',
@@ -54,31 +53,171 @@ export const shuffle = (deck: Card[]): Card[] => {
   return shuffled;
 };
 
-// Initialize tableau and stock
-export const initializeGame = (difficulty: Difficulty): { tableau: Card[][]; stock: Card[] } => {
-  const deck = shuffle(createDeck(difficulty));
+// Deal cards from a deck into tableau and stock (pure layout logic)
+const dealCardsFromDeck = (deck: Card[]): { tableau: Card[][]; stock: Card[] } => {
   const tableau: Card[][] = Array.from({ length: 10 }, () => []);
-
-  // Deal cards to tableau
-  // First 4 columns: 6 cards each (5 face down, top one face up)
-  // Last 6 columns: 5 cards each (4 face down, top one face up)
   let deckIndex = 0;
 
+  // First 4 columns: 6 cards each (5 face down, top one face up)
+  // Last 6 columns: 5 cards each (4 face down, top one face up)
   for (let col = 0; col < 10; col++) {
     const cardCount = col < 4 ? 6 : 5;
     for (let row = 0; row < cardCount; row++) {
-      const card = deck[deckIndex++];
-      if (row === cardCount - 1) {
-        card.isFaceUp = true;
-      }
+      const card = { ...deck[deckIndex++] };
+      card.isFaceUp = row === cardCount - 1;
       tableau[col].push(card);
     }
   }
 
-  // The remaining 50 cards go to the stock
-  const stock = deck.slice(deckIndex);
+  const stock = deck.slice(deckIndex).map(c => ({ ...c }));
+  return { tableau, stock };
+};
+
+// Evaluate the quality of a deal — higher score = more playable opening
+const evaluateDealQuality = (tableau: Card[][], difficulty: Difficulty): number => {
+  let score = 0;
+  const faceUpCards = tableau.map(col => col[col.length - 1]);
+
+  // 1. Count initial valid moves between face-up cards
+  //    Same-suit moves are highly valuable; cross-suit moves still help
+  for (let i = 0; i < faceUpCards.length; i++) {
+    for (let j = 0; j < faceUpCards.length; j++) {
+      if (i === j) continue;
+      // Can card i be placed on card j?
+      if (faceUpCards[j].rank === faceUpCards[i].rank + 1) {
+        if (faceUpCards[j].suit === faceUpCards[i].suit) {
+          score += 4; // Same-suit move — best outcome
+        } else {
+          score += 1; // Cross-suit move — still playable
+        }
+      }
+    }
+  }
+
+  // 2. Rank diversity among face-up cards (more diverse = more move options)
+  const ranks = new Set(faceUpCards.map(c => c.rank));
+  score += ranks.size;
+
+  // 3. Hidden sequence potential — card just below face-up that continues the run
+  for (let col = 0; col < 10; col++) {
+    const column = tableau[col];
+    if (column.length < 2) continue;
+    const faceUp = column[column.length - 1];
+    const hidden = column[column.length - 2];
+    if (hidden.rank === faceUp.rank + 1) {
+      score += hidden.suit === faceUp.suit ? 3 : 1;
+    }
+  }
+
+  // 4. Penalty for too many face-up cards sharing the same rank (limits moves)
+  const rankCounts: Record<number, number> = {};
+  faceUpCards.forEach(c => {
+    rankCounts[c.rank] = (rankCounts[c.rank] || 0) + 1;
+  });
+  for (const count of Object.values(rankCounts)) {
+    if (count >= 3) score -= 3;
+    if (count >= 4) score -= 5;
+  }
+
+  // 5. Penalty for Kings in face-up position (Kings can't be placed on anything)
+  const kingCount = faceUpCards.filter(c => c.rank === 13).length;
+  score -= kingCount * 2;
+
+  // 6. Difficulty-scaled bonus for Aces not being face-up
+  //    (Aces can be placed on 2s but nothing can be placed on an Ace — less useful face-up)
+  const aceCount = faceUpCards.filter(c => c.rank === 1).length;
+  if (difficulty === 1) {
+    score -= aceCount * 1;
+  }
+
+  return score;
+};
+
+// For easy mode: gently swap some hidden cards with stock cards to create
+// better sequences just below the face-up layer.
+// This makes reveals feel more rewarding without making the game trivial.
+const improveEasyDeal = (deal: { tableau: Card[][]; stock: Card[] }): { tableau: Card[][]; stock: Card[] } => {
+  const tableau = deal.tableau.map(col => col.map(c => ({ ...c })));
+  const stock = deal.stock.map(c => ({ ...c }));
+
+  let improvements = 0;
+  const maxImprovements = 4; // Only tweak a few columns to keep it natural
+
+  for (let col = 0; col < 10 && improvements < maxImprovements; col++) {
+    const column = tableau[col];
+    const faceUpIdx = column.length - 1;
+    const hiddenIdx = faceUpIdx - 1;
+
+    if (hiddenIdx < 0) continue;
+
+    const faceUp = column[faceUpIdx];
+    const hidden = column[hiddenIdx];
+
+    // Already forms a same-suit sequence? No need to improve
+    if (hidden.rank === faceUp.rank + 1 && hidden.suit === faceUp.suit) continue;
+
+    // Look for a card in the stock that would form a same-suit sequence
+    const targetRank = faceUp.rank + 1;
+    if (targetRank > 13) continue; // Can't go higher than King
+
+    const stockIdx = stock.findIndex(c => c.rank === targetRank && c.suit === faceUp.suit);
+    if (stockIdx !== -1) {
+      // Swap: put the sequence-friendly card under the face-up card,
+      // move the original hidden card into the stock
+      const temp = { ...column[hiddenIdx] };
+      column[hiddenIdx] = { ...stock[stockIdx], isFaceUp: false };
+      stock[stockIdx] = { ...temp, isFaceUp: false };
+      improvements++;
+    }
+  }
 
   return { tableau, stock };
+};
+
+// Initialize tableau and stock with quality-optimized dealing
+export const initializeGame = (
+  difficulty: Difficulty,
+  customSuits?: Suit[],
+  customMinQuality?: number,
+  customMaxAttempts?: number
+): { tableau: Card[][]; stock: Card[] } => {
+  // Difficulty-based tuning:
+  //   Easy:   more attempts, higher quality bar, plus post-processing
+  //   Medium: moderate attempts and bar
+  //   Hard:   fewer attempts, lower bar (hard is supposed to be hard)
+  const config: Record<Difficulty, { maxAttempts: number; minQuality: number }> = {
+    1: { maxAttempts: 100, minQuality: 20 },
+    2: { maxAttempts: 60, minQuality: 14 },
+    4: { maxAttempts: 30, minQuality: 8 },
+  };
+
+  const { maxAttempts, minQuality } = config[difficulty];
+  const targetAttempts = customMaxAttempts ?? maxAttempts;
+  const targetQuality = customMinQuality ?? minQuality;
+
+  let bestDeal: { tableau: Card[][]; stock: Card[] } | null = null;
+  let bestScore = -Infinity;
+
+  for (let attempt = 0; attempt < targetAttempts; attempt++) {
+    const deck = shuffle(createDeck(difficulty, customSuits));
+    const deal = dealCardsFromDeck(deck);
+    const quality = evaluateDealQuality(deal.tableau, difficulty);
+
+    if (quality > bestScore) {
+      bestScore = quality;
+      bestDeal = deal;
+    }
+
+    // Good enough — stop early
+    if (quality >= targetQuality) break;
+  }
+
+  // Easy mode: additionally improve hidden sequences
+  if (difficulty === 1 && bestDeal) {
+    bestDeal = improveEasyDeal(bestDeal);
+  }
+
+  return bestDeal!;
 };
 
 // Check if a single card can be placed on targetCard

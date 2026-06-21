@@ -16,6 +16,10 @@ interface TableauColumnProps {
   onDropCards: (fromColIndex: number, fromCardIndex: number, toColIndex: number) => void;
   onDragStartGlobal: (colIndex: number, cardIndex: number) => void;
   onDragEndGlobal: () => void;
+  peekMode: boolean;
+  peekedCardIds: Set<string>;
+  freeMoveActive: boolean;
+  onPeekCard: (cardId: string) => void;
 }
 
 export const TableauColumn: React.FC<TableauColumnProps> = ({
@@ -28,7 +32,11 @@ export const TableauColumn: React.FC<TableauColumnProps> = ({
   onSelectCard,
   onDropCards,
   onDragStartGlobal,
-  onDragEndGlobal
+  onDragEndGlobal,
+  peekMode,
+  peekedCardIds,
+  freeMoveActive,
+  onPeekCard
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -36,6 +44,8 @@ export const TableauColumn: React.FC<TableauColumnProps> = ({
   const canAcceptDraggedStack = (): boolean => {
     if (!draggedStack) return false;
     if (draggedStack.colIndex === colIndex) return false; // Can't drop on itself
+
+    if (freeMoveActive) return true; // Bypass verification for free move
 
     const sourceColumn = allTableaus[draggedStack.colIndex];
     const movingStack = sourceColumn.slice(draggedStack.cardIndex);
@@ -95,6 +105,14 @@ export const TableauColumn: React.FC<TableauColumnProps> = ({
       hintedCard.fromCol === colIndex && 
       hintedCard.cardIndex === index;
 
+    const handleSelect = (colIdx: number, cardIdx: number, event: React.MouseEvent) => {
+      if (peekMode && !card.isFaceUp) {
+        onPeekCard(card.id);
+      } else {
+        onSelectCard(colIdx, cardIdx, event);
+      }
+    };
+
     return (
       <CardView
         card={card}
@@ -103,7 +121,8 @@ export const TableauColumn: React.FC<TableauColumnProps> = ({
         isSelected={isSelected}
         isHinted={isHinted}
         isDraggable={isDraggable}
-        onSelect={onSelectCard}
+        isPeeked={peekedCardIds.has(card.id)}
+        onSelect={handleSelect}
         onDragStart={() => handleDragStart(index)}
         onDragEnd={onDragEndGlobal}
       >
@@ -118,7 +137,7 @@ export const TableauColumn: React.FC<TableauColumnProps> = ({
     cards.length === 0 ? 'empty-column' : '',
     isDragOver && isValidDrop ? 'drag-hover-valid' : '',
     // If we have a selected card that can move here, highlight the empty column or destination
-    selectedCard && selectedCard.colIndex !== colIndex && isValidMove(allTableaus[selectedCard.colIndex].slice(selectedCard.cardIndex), cards) ? 'valid-target-highlight' : ''
+    selectedCard && selectedCard.colIndex !== colIndex && (freeMoveActive || isValidMove(allTableaus[selectedCard.colIndex].slice(selectedCard.cardIndex), cards)) ? 'valid-target-highlight' : ''
   ].join(' ');
 
   return (

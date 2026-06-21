@@ -70,6 +70,54 @@ export interface Translations {
     alertEmptyColumns: string;
     alertNoMoves: string;
   };
+
+  // Cheat Panel
+  cheat: {
+    panelTitle: string;
+    remaining: (used: number, max: number) => string;
+    peekName: string;
+    peekDesc: string;
+    oracleName: string;
+    oracleDesc: string;
+    freeMoveName: string;
+    freeMoveDesc: string;
+    activateBtn: string;
+    usedCount: (count: number) => string;
+    allUsedTitle: string;
+    allUsedDesc: string;
+    instantWinBtn: string;
+    stockEmpty: string;
+    peekModeActive: string;
+    freeMoveModeActive: string;
+    oracleTitle: string;
+    oracleDismiss: string;
+  };
+
+  // Settings Panel
+  settings: {
+    title: string;
+    easySuitLabel: string;
+    mediumSuitsLabel: string;
+    mediumSuitsWarning: string;
+    maxCheatsLabel: string;
+    maxCheatsDesc: string;
+    initialScoreLabel: string;
+    moveCostLabel: string;
+    runBonusLabel: string;
+    restartNotice: string;
+    saveBtn: string;
+    saveAndRestartBtn: string;
+    suitSpades: string;
+    suitHearts: string;
+    suitDiamonds: string;
+    suitClubs: string;
+    dealQualityGroupTitle: string;
+    dealQualityEasyLabel: string;
+    dealQualityMediumLabel: string;
+    dealQualityHardLabel: string;
+    attemptsLabel: string;
+    qualityThresholdLabel: string;
+  };
 }
 
 const en: Translations = {
@@ -154,6 +202,52 @@ const en: Translations = {
       'You cannot deal cards when there are empty columns on the board. Fill them first!',
     alertNoMoves: 'No valid moves available. Deal from stock!',
   },
+
+  cheat: {
+    panelTitle: 'Cheat Panel',
+    remaining: (used: number, max: number) => `${max - used} cheats remaining`,
+    peekName: 'Peek',
+    peekDesc: 'Click any face-down card to peek at it for 2 seconds',
+    oracleName: 'Oracle',
+    oracleDesc: 'Preview the next 10 cards to be dealt from the stock',
+    freeMoveName: 'Free Move',
+    freeMoveDesc: 'Your next move can ignore suit and rank rules',
+    activateBtn: 'Activate',
+    usedCount: (count: number) => `Used ${count} time${count !== 1 ? 's' : ''}`,
+    allUsedTitle: 'All cheats used up!',
+    allUsedDesc: `Since you've used all your cheats... why not just...`,
+    instantWinBtn: '💥 Instant Win',
+    stockEmpty: 'Stock pile is empty!',
+    peekModeActive: 'Peek Mode — Click any face-down card',
+    freeMoveModeActive: 'Free Move — Next move ignores rules',
+    oracleTitle: 'Next 10 Cards',
+    oracleDismiss: 'Got it',
+  },
+
+  settings: {
+    title: 'Advanced Settings',
+    easySuitLabel: 'Easy Difficulty Suit:',
+    mediumSuitsLabel: 'Medium Difficulty Suits (Select exactly 2):',
+    mediumSuitsWarning: 'Please select exactly 2 suits for Medium mode.',
+    maxCheatsLabel: 'Cheats Budget per Game:',
+    maxCheatsDesc: 'How many times you can cheat in a game',
+    initialScoreLabel: 'Initial Score:',
+    moveCostLabel: 'Points Cost per Move:',
+    runBonusLabel: 'Completed Run Bonus:',
+    restartNotice: '⚠️ Note: Suit and scoring changes will apply to the next game or after a restart.',
+    saveBtn: 'Save & Continue',
+    saveAndRestartBtn: 'Save & Restart Game',
+    suitSpades: 'Spades ♠',
+    suitHearts: 'Hearts ♥',
+    suitDiamonds: 'Diamonds ♦',
+    suitClubs: 'Clubs ♣',
+    dealQualityGroupTitle: 'Deal Quality / Shuffle Filter Settings',
+    dealQualityEasyLabel: 'Easy Difficulty Filtering:',
+    dealQualityMediumLabel: 'Medium Difficulty Filtering:',
+    dealQualityHardLabel: 'Hard Difficulty Filtering:',
+    attemptsLabel: 'Max Shuffle Attempts',
+    qualityThresholdLabel: 'Min Quality Score',
+  },
 };
 
 const zh: Translations = {
@@ -235,6 +329,52 @@ const zh: Translations = {
     confirmRestart: '确定要重新开始吗？当前游戏进度将会丢失。',
     alertEmptyColumns: '存在空列时无法发牌，请先填满所有空列！',
     alertNoMoves: '没有可用的移动了，请从发牌堆发牌！',
+  },
+
+  cheat: {
+    panelTitle: '作弊面板',
+    remaining: (used: number, max: number) => `剩余 ${max - used} 次`,
+    peekName: '偷看',
+    peekDesc: '点击任意暗牌，短暂查看其花色和点数（2秒）',
+    oracleName: '先知',
+    oracleDesc: '预览牌堆即将发出的10张牌',
+    freeMoveName: '自由移动',
+    freeMoveDesc: '下一次移动无视花色和点数规则',
+    activateBtn: '激活',
+    usedCount: (count: number) => `已使用 ${count} 次`,
+    allUsedTitle: '作弊次数已用完！',
+    allUsedDesc: '既然都用完了…不如直接…',
+    instantWinBtn: '💥 一键通关',
+    stockEmpty: '牌堆已空！',
+    peekModeActive: '偷看模式 — 点击任意暗牌查看',
+    freeMoveModeActive: '自由移动 — 下一步无视规则',
+    oracleTitle: '接下来的10张牌',
+    oracleDismiss: '知道了',
+  },
+
+  settings: {
+    title: '高级设置',
+    easySuitLabel: '简单难度花色选择：',
+    mediumSuitsLabel: '中等难度花色选择（请精确选择2种）：',
+    mediumSuitsWarning: '中等难度必须且只能选择 2 种花色。',
+    maxCheatsLabel: '每局作弊次数限制：',
+    maxCheatsDesc: '允许主动使用作弊手段的次数',
+    initialScoreLabel: '游戏初始得分：',
+    moveCostLabel: '每移动一步扣减分数：',
+    runBonusLabel: '完成一组序列奖励分数：',
+    restartNotice: '⚠️ 提示：花色和评分系统的改动将在下一局或重新开始后生效。',
+    saveBtn: '保存并继续',
+    saveAndRestartBtn: '保存并重新开始',
+    suitSpades: '黑桃 ♠',
+    suitHearts: '红心 ♥',
+    suitDiamonds: '方块 ♦',
+    suitClubs: '梅花 ♣',
+    dealQualityGroupTitle: '发牌质量评分与难度过滤',
+    dealQualityEasyLabel: '简单难度过滤：',
+    dealQualityMediumLabel: '中等难度过滤：',
+    dealQualityHardLabel: '困难难度过滤：',
+    attemptsLabel: '最大发牌尝试次数',
+    qualityThresholdLabel: '最低发牌质量分',
   },
 };
 

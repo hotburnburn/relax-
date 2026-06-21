@@ -7,7 +7,8 @@ import {
   VolumeX, 
   RotateCcw, 
   Lightbulb,
-  Languages
+  Languages,
+  Settings
 } from 'lucide-react';
 import type { Difficulty } from '../types/game';
 import type { Language } from '../i18n';
@@ -29,6 +30,7 @@ interface HeaderProps {
   onHint: () => void;
   onToggleMute: () => void;
   onOpenRules: () => void;
+  onOpenSettings: () => void;
   onChangeDifficulty: (diff: Difficulty) => void;
   onToggleLanguage: () => void;
 }
@@ -48,6 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
   onHint,
   onToggleMute,
   onOpenRules,
+  onOpenSettings,
   onChangeDifficulty,
   onToggleLanguage
 }) => {
@@ -124,6 +127,14 @@ export const Header: React.FC<HeaderProps> = ({
             title={t.header.rulesTooltip}
           >
             <HelpCircle size={18} />
+          </button>
+
+          <button 
+            className="action-btn icon-btn" 
+            onClick={onOpenSettings}
+            title={lang === 'zh' ? '高级设置' : 'Advanced Settings'}
+          >
+            <Settings size={18} />
           </button>
 
           <button 

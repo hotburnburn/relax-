@@ -1,0 +1,484 @@
+/* Floating Cheat Button */
+.cheat-float-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+  transition: all 0.25s ease;
+  z-index: 500;
+  opacity: 0.75;
+}
+
+.cheat-float-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+}
+
+.cheat-float-btn:active {
+  transform: scale(0.95);
+}
+
+/* Cheat Panel Modal */
+.cheat-modal-content {
+  background: rgba(30, 41, 59, 0.97);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+              0 0 40px rgba(168, 85, 247, 0.15);
+  color: #f8fafc;
+  overflow: hidden;
+  animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cheat-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cheat-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cheat-title-icon {
+  color: #a855f7;
+  width: 24px;
+  height: 24px;
+}
+
+.cheat-modal-title h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.cheat-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cheat-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* Remaining Uses Counter */
+.cheat-remaining {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cheat-remaining-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Inter', sans-serif;
+}
+
+.cheat-remaining-text span {
+  color: #c084fc;
+  font-weight: 600;
+}
+
+.cheat-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cheat-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a855f7, #8b5cf6);
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cheat Cards List */
+.cheat-modal-body {
+  padding: 0 24px 24px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cheat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(168, 85, 247, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.cheat-card:hover {
+  background: rgba(168, 85, 247, 0.06);
+  border-color: rgba(168, 85, 247, 0.25);
+}
+
+.cheat-card-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(168, 85, 247, 0.12);
+  border-radius: 10px;
+}
+
+.cheat-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cheat-card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  margin: 0 0 2px 0;
+}
+
+.cheat-card-desc {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cheat-card-used {
+  font-size: 0.75rem;
+  color: rgba(168, 85, 247, 0.7);
+  font-family: 'Inter', sans-serif;
+  margin-top: 4px;
+}
+
+.cheat-activate-btn {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cheat-activate-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+}
+
+.cheat-activate-btn:active {
+  transform: translateY(0);
+}
+
+.cheat-activate-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* All-Used State */
+.cheat-all-used {
+  padding: 32px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cheat-all-used-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #c084fc;
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+}
+
+.cheat-all-used-desc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.cheat-instant-win-btn {
+  background: linear-gradient(135deg, #f97316, #ef4444, #a855f7);
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cheat-instant-win-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+}
+
+.cheat-instant-win-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Oracle Overlay */
+.oracle-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  animation: fade-in 0.25s ease-out;
+}
+
+.oracle-content {
+  background: rgba(30, 41, 59, 0.97);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
+              0 0 60px rgba(168, 85, 247, 0.1);
+  animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.oracle-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.oracle-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #c084fc;
+  font-family: 'Outfit', sans-serif;
+}
+
+.oracle-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.oracle-card-wrapper {
+  position: relative;
+  width: var(--card-width, 90px);
+  height: var(--card-height, 135px);
+}
+
+.oracle-card-index {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  background: #a855f7;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  font-family: 'Inter', sans-serif;
+}
+
+.oracle-empty-msg {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  padding: 24px 0;
+}
+
+.oracle-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.oracle-dismiss-btn {
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.oracle-dismiss-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+}
+
+.oracle-dismiss-btn:active {
+  transform: translateY(0);
+}
+
+/* Mode Indicator Bar */
+.cheat-mode-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(139, 92, 246, 0.9));
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.3);
+  animation: slide-down-indicator 0.3s ease-out;
+}
+
+@keyframes slide-down-indicator {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.cheat-mode-cancel-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cheat-mode-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cheat-float-btn {
+    bottom: 16px;
+    left: 16px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .cheat-modal-content {
+    max-width: 95%;
+  }
+
+  .oracle-card-wrapper {
+    width: calc(var(--card-width, 72px) * 0.85);
+    height: calc(var(--card-height, 108px) * 0.85);
+    transform: scale(0.85);
+    transform-origin: top left;
+  }
+
+  .cheat-mode-indicator {
+    font-size: 0.78rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cheat-float-btn {
+    bottom: 12px;
+    left: 12px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .oracle-cards-grid {
+    gap: 4px;
+  }
+
+  .oracle-card-wrapper {
+    transform: scale(0.75);
+    transform-origin: top left;
+  }
+}

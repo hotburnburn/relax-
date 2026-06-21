@@ -16,20 +16,50 @@ import {
   toggleMute as toggleMuteAudio,
   getMutedStatus
 } from './utils/audio';
-import type { Suit, Difficulty, GameState, GameHistoryState } from './types/game';
+import type { Card, Suit, Difficulty, GameState, GameHistoryState } from './types/game';
 import { Header } from './components/Header';
 import { TableauColumn } from './components/TableauColumn';
 import { StockPile } from './components/StockPile';
 import { Foundations } from './components/Foundations';
 import { RulesModal } from './components/RulesModal';
 import { VictoryModal } from './components/VictoryModal';
+import { CheatPanel } from './components/CheatPanel';
+import { SettingsModal, type GameSettings } from './components/SettingsModal';
 import { useLanguage } from './i18n';
 import './App.css';
 
 const LOCAL_STORAGE_KEY = 'spider_solitaire_save';
+const SETTINGS_LOCAL_STORAGE_KEY = 'spider_solitaire_settings';
+
+const DEFAULT_SETTINGS: GameSettings = {
+  easySuit: 'spades',
+  mediumSuits: ['spades', 'hearts'],
+  maxCheats: 10,
+  initialScore: 500,
+  moveCost: 1,
+  runBonus: 100,
+  easyMinQuality: 20,
+  easyMaxAttempts: 100,
+  mediumMinQuality: 14,
+  mediumMaxAttempts: 60,
+  hardMinQuality: 8,
+  hardMaxAttempts: 30
+};
 
 export default function App() {
   const { lang, setLang, t } = useLanguage();
+
+  // Settings state
+  const [settings, setSettings] = useState<GameSettings>(() => {
+    const saved = localStorage.getItem(SETTINGS_LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+      } catch (_) {}
+    }
+    return DEFAULT_SETTINGS;
+  });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Game state
   const [gameState, setGameState] = useState<GameState>({
@@ -55,6 +85,14 @@ export default function App() {
   const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [hintedCard, setHintedCard] = useState<{ fromCol: number; cardIndex: number; toCol: number } | null>(null);
   const [draggedStack, setDraggedStack] = useState<{ colIndex: number; cardIndex: number } | null>(null);
+
+  // Cheat state
+  const [cheatState, setCheatState] = useState({ totalUsed: 0, maxCheats: DEFAULT_SETTINGS.maxCheats, peekCount: 0, oracleCount: 0, freeMoveCount: 0 });
+  const [isCheatPanelOpen, setIsCheatPanelOpen] = useState(false);
+  const [peekMode, setPeekMode] = useState(false);
+  const [peekedCardIds, setPeekedCardIds] = useState<Set<string>>(new Set());
+  const [freeMoveActive, setFreeMoveActive] = useState(false);
+  const [oracleCards, setOracleCards] = useState<Card[] | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hintTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -171,14 +209,18 @@ export default function App() {
     if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
 
     // Get shuffled deck and initial deal
-    const { tableau, stock } = initializeGame(diff);
+    const customSuits = diff === 1 ? [settings.easySuit] : diff === 2 ? settings.mediumSuits : undefined;
+    const targetMinQuality = diff === 1 ? settings.easyMinQuality : diff === 2 ? settings.mediumMinQuality : settings.hardMinQuality;
+    const targetMaxAttempts = diff === 1 ? settings.easyMaxAttempts : diff === 2 ? settings.mediumMaxAttempts : settings.hardMaxAttempts;
+    
+    const { tableau, stock } = initializeGame(diff, customSuits, targetMinQuality, targetMaxAttempts);
     
     const newState: GameState = {
       difficulty: diff,
       tableau,
       stock,
       completedRuns: [],
-      score: 500,
+      score: settings.initialScore,
       movesCount: 0,
       startTime: null,
       elapsedTime: 0,
@@ -190,6 +232,11 @@ export default function App() {
     setGameState(newState);
     setHistory([]);
     setRedoHistory([]);
+    setCheatState({ totalUsed: 0, maxCheats: settings.maxCheats, peekCount: 0, oracleCount: 0, freeMoveCount: 0 });
+    setPeekMode(false);
+    setPeekedCardIds(new Set());
+    setFreeMoveActive(false);
+    setOracleCards(null);
     playShuffleSound();
 
     saveToLocalStorage(newState, [], []);
@@ -232,7 +279,7 @@ export default function App() {
     }
 
     if (totalCompletedThisDeal > 0) {
-      newScore += totalCompletedThisDeal * 100;
+      newScore += totalCompletedThisDeal * settings.runBonus;
       setTimeout(() => playCompleteRunSound(), 300);
     }
 
@@ -298,7 +345,7 @@ export default function App() {
     const sourceColCards = gameState.tableau[sourceCol];
     const movingStack = sourceColCards.slice(sourceCardIdx);
 
-    if (isValidMove(movingStack, gameState.tableau[colIndex])) {
+    if (freeMoveActive || isValidMove(movingStack, gameState.tableau[colIndex])) {
       moveSelectedCards(sourceCol, sourceCardIdx, colIndex);
     } else {
       // If move is invalid, check if we can select the newly clicked card instead
@@ -341,7 +388,7 @@ export default function App() {
 
     // Check for completed runs in the target column
     let completedRunsList = [...gameState.completedRuns];
-    let newScore = gameState.score - 1; // Move costs 1 point
+    let newScore = gameState.score - settings.moveCost; // Move costs moveCost points
     let totalCompletedThisMove = 0;
 
     let runCheckResult = checkCompletedRuns(newTableau);
@@ -353,7 +400,7 @@ export default function App() {
     }
 
     if (totalCompletedThisMove > 0) {
-      newScore += totalCompletedThisMove * 100;
+      newScore += totalCompletedThisMove * settings.runBonus;
       setTimeout(() => playCompleteRunSound(), didFlip ? 350 : 200);
     }
 
@@ -377,6 +424,10 @@ export default function App() {
     setGameState(nextState);
     saveToLocalStorage(nextState, hist, []);
     setHintedCard(null);
+
+    if (freeMoveActive) {
+      setFreeMoveActive(false);
+    }
   };
 
   // Drag and Drop dropping handler
@@ -499,8 +550,97 @@ export default function App() {
     setIsMuted(muted);
   };
 
+  const handlePeekCard = (cardId: string) => {
+    setPeekedCardIds(prev => {
+      const next = new Set(prev);
+      next.add(cardId);
+      return next;
+    });
+    setCheatState(prev => ({
+      ...prev,
+      totalUsed: prev.totalUsed + 1,
+      peekCount: prev.peekCount + 1
+    }));
+    setPeekMode(false);
+    playFlipSound();
+    setTimeout(() => {
+      setPeekedCardIds(prev => {
+        const next = new Set(prev);
+        next.delete(cardId);
+        return next;
+      });
+    }, 2000);
+  };
+
+  const handleCancelPeek = () => {
+    setPeekMode(false);
+  };
+
+  const handleActivateOracle = () => {
+    if (gameState.stock.length === 0) {
+      setOracleCards([]);
+      return;
+    }
+    const next10 = gameState.stock.slice(gameState.stock.length - 10);
+    setOracleCards(next10);
+    setCheatState(prev => ({
+      ...prev,
+      totalUsed: prev.totalUsed + 1,
+      oracleCount: prev.oracleCount + 1
+    }));
+    setIsCheatPanelOpen(false);
+  };
+
+  const handleDismissOracle = () => {
+    setOracleCards(null);
+  };
+
+  const handleActivateFreeMove = () => {
+    setFreeMoveActive(true);
+    setCheatState(prev => ({
+      ...prev,
+      totalUsed: prev.totalUsed + 1,
+      freeMoveCount: prev.freeMoveCount + 1
+    }));
+    setIsCheatPanelOpen(false);
+  };
+
+  const handleCancelFreeMove = () => {
+    setFreeMoveActive(false);
+    setCheatState(prev => ({
+      ...prev,
+      totalUsed: Math.max(0, prev.totalUsed - 1),
+      freeMoveCount: Math.max(0, prev.freeMoveCount - 1)
+    }));
+  };
+
+  const handleInstantWin = () => {
+    setIsCheatPanelOpen(false);
+    setGameState(prev => ({
+      ...prev,
+      victory: true,
+      score: 9999
+    }));
+    playVictorySound();
+  };
+
   const handleRestart = () => {
     startNewGame(gameState.difficulty, true);
+  };
+
+  const handleSaveSettings = (newSettings: GameSettings, shouldRestart: boolean) => {
+    setSettings(newSettings);
+    localStorage.setItem(SETTINGS_LOCAL_STORAGE_KEY, JSON.stringify(newSettings));
+    
+    // Update active cheat state maxCheats dynamically
+    setCheatState(prev => ({
+      ...prev,
+      maxCheats: newSettings.maxCheats
+    }));
+
+    if (shouldRestart) {
+      startNewGame(gameState.difficulty, false);
+    }
   };
 
   return (
@@ -520,6 +660,7 @@ export default function App() {
         onHint={handleHint}
         onToggleMute={handleToggleMute}
         onOpenRules={() => setIsRulesOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
         onChangeDifficulty={handleChangeDifficulty}
         onToggleLanguage={() => setLang(lang === 'zh' ? 'en' : 'zh')}
       />
@@ -540,6 +681,10 @@ export default function App() {
               onDropCards={handleDropCards}
               onDragStartGlobal={handleDragStartGlobal}
               onDragEndGlobal={handleDragEndGlobal}
+              peekMode={peekMode}
+              peekedCardIds={peekedCardIds}
+              freeMoveActive={freeMoveActive}
+              onPeekCard={handlePeekCard}
             />
           ))}
         </div>
@@ -568,6 +713,32 @@ export default function App() {
         time={gameState.elapsedTime}
         difficulty={gameState.difficulty}
         onRestart={() => startNewGame(gameState.difficulty, false)}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onSave={handleSaveSettings}
+      />
+
+      {/* Cheat Panel & Mode indicators */}
+      <CheatPanel
+        isOpen={isCheatPanelOpen}
+        onOpen={() => setIsCheatPanelOpen(true)}
+        onClose={() => setIsCheatPanelOpen(false)}
+        cheatState={cheatState}
+        onActivatePeek={() => { setPeekMode(true); setIsCheatPanelOpen(false); }}
+        onActivateOracle={handleActivateOracle}
+        onActivateFreeMove={handleActivateFreeMove}
+        onInstantWin={handleInstantWin}
+        oracleCards={oracleCards}
+        onDismissOracle={handleDismissOracle}
+        stockEmpty={gameState.stock.length === 0}
+        peekMode={peekMode}
+        freeMoveActive={freeMoveActive}
+        onCancelPeek={handleCancelPeek}
+        onCancelFreeMove={handleCancelFreeMove}
       />
     </div>
   );

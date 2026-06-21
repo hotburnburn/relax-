@@ -49,6 +49,7 @@ interface CardViewProps {
   onSelect: (colIndex: number, cardIndex: number, event: React.MouseEvent) => void;
   onDragStart: () => void;
   onDragEnd?: () => void;
+  isPeeked?: boolean;
   children?: React.ReactNode;
 }
 
@@ -63,6 +64,7 @@ export const CardView: React.FC<CardViewProps> = ({
   onSelect,
   onDragStart,
   onDragEnd,
+  isPeeked = false,
   children
 }) => {
   const getRankLabel = (rank: number): string => {
@@ -114,7 +116,8 @@ export const CardView: React.FC<CardViewProps> = ({
     isSelected ? 'selected' : '',
     isHinted ? 'hinted' : '',
     isDraggable ? 'draggable' : '',
-    isRed ? 'red-suit' : 'black-suit'
+    isRed ? 'red-suit' : 'black-suit',
+    isPeeked ? 'peeked' : ''
   ].join(' ');
 
   // Calculate vertical offset for stacking
@@ -133,9 +136,9 @@ export const CardView: React.FC<CardViewProps> = ({
       onDragEnd={handleDragEnd}
       onClick={handleClick}
     >
-      {card.isFaceUp ? (
+      {card.isFaceUp || isPeeked ? (
         // Face Up Content
-        <div className="card-face">
+        <div className={`card-face ${isPeeked ? 'peeked-face' : ''}`}>
           <div className="card-corner top-left">
             <span className="card-rank">{label}</span>
             <SuitIcon suit={card.suit} className="suit-mini" />
